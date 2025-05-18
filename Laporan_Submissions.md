@@ -1,98 +1,131 @@
-# Laporan Proyek Machine Learning - Guruh Sukmo
+#  Laporan Proyek Machine Learning: Prediksi Hasil Panen  
+**Disusun oleh: Guruh Sukmo**
 
-## Domain Proyek
+---
 
-Proyek ini berfokus pada pengembangan model klasifikasi untuk mendeteksi penyakit tanaman berdasarkan data pertanian yang mencakup 22 fitur, termasuk informasi tanah, cuaca, jenis tanaman, hasil panen, dan status penyakit. Deteksi dini terhadap penyakit tanaman sangat penting untuk meningkatkan produktivitas pertanian dan mengurangi kerugian ekonomi akibat gagal panen.
+##  Domain Proyek
 
-Menurut [FAO, 2021], kerugian hasil panen global akibat penyakit tanaman bisa mencapai 20-40% setiap tahunnya. Dengan meningkatnya populasi dunia dan kebutuhan pangan yang terus bertambah, penerapan teknologi berbasis machine learning dapat menjadi solusi strategis untuk mendukung pertanian presisi (precision agriculture).
+Proyek ini berfokus pada pengembangan model regresi untuk memprediksi hasil panen berdasarkan data pertanian yang mencakup 22 fitur, termasuk informasi tanah, cuaca, jenis tanaman, dan status penyakit.
 
-### Referensi:
-- Savary, S., et al. "The global burden of pathogens and pests on major food crops." *Nature Ecology & Evolution* 3.3 (2019): 430–439.
-- FAO. (2021). "Integrated Pest Management." [https://www.fao.org](https://www.fao.org)
+Prediksi hasil panen yang akurat sangat penting untuk mendukung pertanian presisi dan membantu petani mengurangi risiko gagal panen.
 
-## Business Understanding
+>  *FAO (2021) mencatat bahwa kerugian hasil panen global akibat faktor lingkungan dan penyakit tanaman bisa mencapai 20–40% tiap tahun.*
+
+**Referensi:**
+- Savary, S., et al. *Nature Ecology & Evolution*, 2019
+- FAO (2021). (https://www.fao.org](https://www.fao.org/pest-and-pesticide-management/about/understanding-the-context/en/)
+
+---
+
+##  Business Understanding
 
 ### Problem Statements
-- Bagaimana cara mengklasifikasikan tanaman yang sakit atau sehat berdasarkan fitur cuaca, tanah, dan jenis tanaman?
-- Algoritma machine learning apa yang paling optimal untuk klasifikasi data penyakit tanaman ini?
+- Bagaimana cara memprediksi hasil panen dari kondisi cuaca, jenis tanah, dan tanaman?
+- Algoritma regresi mana yang memberikan prediksi paling akurat?
 
 ### Goals
-- Mengembangkan model klasifikasi dengan akurasi minimal 85% untuk mendeteksi penyakit tanaman.
-- Menentukan model terbaik dari beberapa algoritma machine learning yang diuji.
+- Mengembangkan model regresi dengan RMSE minimum dan R² maksimum.
+- Menentukan model terbaik antara Random Forest dan XGBoost.
 
-### Solution Statements
-- Membangun dua atau lebih model klasifikasi seperti Random Forest, SVM, dan Neural Network.
-- Melakukan evaluasi performa dengan metrik akurasi, precision, recall, dan F1-score.
-- Melakukan hyperparameter tuning pada model terbaik untuk meningkatkan performa.
+### Solution Strategy
+- Membangun pipeline preprocessing dan modeling.
+- Evaluasi performa menggunakan RMSE dan R² score.
+- Hyperparameter tuning dengan `GridSearchCV`.
 
-## Data Understanding
+---
 
-Dataset terdiri dari 500 entri dan 22 fitur, yang mencakup:
+##  Data Understanding
 
-- `soil_type`: Jenis tanah di lokasi tanaman.
-- `moisture`: Tingkat kelembaban tanah.
-- `temperature`: Suhu harian rata-rata.
-- `humidity`: Tingkat kelembaban udara.
-- `rainfall`: Jumlah curah hujan harian.
-- `crop_type`: Jenis tanaman yang ditanam.
-- `yield`: Estimasi hasil panen.
-- `disease`: Status tanaman (sakit/sehat) - label target.
+Jumlah data: 500 entri, 22 kolom
 
-Dataset berasal dari kombinasi sumber lokal dan sintetis, serta disesuaikan untuk pelatihan model klasifikasi.
+Target variabel: yield_kg_per_hectare (float64)
 
-Visualisasi awal seperti heatmap dan plot distribusi digunakan untuk memahami korelasi antar fitur dan distribusi kelas target.
+Fitur penting yang tersedia:
 
-## Data Preparation
+Lingkungan: soil_moisture_%, soil_pH, temperature_C, rainfall_mm, humidity_%, sunlight_hours
+Agronomi: irrigation_type, fertilizer_type, pesticide_usage_ml
+Tanggal tanam dan panen: sowing_date, harvest_date, total_days
+Lokasi dan waktu: latitude, longitude, timestamp
+Citra dan penyakit: NDVI_index, crop_disease_status
 
-Beberapa langkah data preparation yang dilakukan antara lain:
 
-- Menghapus data duplikat dan nilai kosong (missing values).
-- Encoding fitur kategorikal seperti `soil_type` dan `crop_type` menggunakan One-Hot Encoding.
-- Normalisasi fitur numerik menggunakan MinMaxScaler untuk meningkatkan performa algoritma berbasis jarak.
-- Split data menjadi training (70%), validation (15%), dan test set (15%).
+Kemudian dilakukan penghapusan data yang tidak relevan sehingga variabel yang tersisa untuk digunakan adalah: 
+`crop_type`, `soil_moisture_%`, `soil_pH`, `temperature_C`, `rainfall_mm`, `sunlight_hours`, `fertilizer_type`, `pesticide_usage_ml`, `crop_disease_status`
 
-Proses ini penting agar data berada dalam format yang sesuai untuk algoritma pembelajaran mesin dan menghindari bias model.
+`yield_kg_per_hectare` (target)
 
-## Modeling
 
-Beberapa model klasifikasi diuji, antara lain:
 
-- **Random Forest**
-  - N_estimators: 100
-  - Max_depth: 10
-- **Support Vector Machine (SVM)**
-  - Kernel: RBF
-  - C: 1.0
-- **Convolutional Neural Network (CNN)**
-  - Input shape: 22 fitur, reshape menjadi (22, 1)
-  - Arsitektur: Conv1D, MaxPooling, Flatten, Dense
-  - Optimizer: Adam
-  - Loss: Binary Crossentropy
+---
 
-Setelah dilakukan perbandingan performa, model CNN menghasilkan akurasi tertinggi, yaitu 89.6% pada test set. Model ini dipilih karena performanya yang paling konsisten dan dapat ditingkatkan lagi melalui tuning.
+##  Data Preparation
 
-## Evaluation
+- **Numerik**: Distandarisasi menggunakan `StandardScaler`
+- **Kategorikal**: Diolah dengan One-Hot Encoding
+- **Split Data**: 70% pelatihan, 30% pengujian
+- **Preprocessing** dilakukan menggunakan `ColumnTransformer` dalam pipeline Scikit-learn
 
-### Metrik Evaluasi
+---
 
-- **Akurasi**: Rasio prediksi benar terhadap total data.
-- **Precision**: Kemampuan model dalam mengidentifikasi tanaman sakit dengan benar dari semua prediksi sakit.
-- **Recall**: Kemampuan model dalam menemukan semua kasus penyakit yang sebenarnya ada.
-- **F1-score**: Harmonic mean dari precision dan recall.
+##  Modeling
 
-### Hasil Evaluasi
+### 1. Random Forest Regressor
+- N_estimators: 100
+- **RMSE (awal)**: 1215.90
+- **R² (awal)**: -0.049
 
-| Model           | Akurasi | Precision | Recall | F1-Score |
-|----------------|---------|-----------|--------|----------|
-| Random Forest  | 85.2%   | 84.3%     | 86.1%  | 85.2%    |
-| SVM            | 83.5%   | 82.7%     | 84.5%  | 83.6%    |
-| CNN (Terbaik)  | 89.6%   | 88.7%     | 90.2%  | 89.4%    |
+### 2. XGBoost Regressor
+- N_estimators: 200, learning_rate: 0.05, max_depth: 5
+- **RMSE (awal)**: 1282.78
+- **R² (awal)**: -0.168
 
-Model CNN menunjukkan kinerja terbaik berdasarkan seluruh metrik evaluasi, menjadikannya solusi utama dalam proyek ini.
+---
 
-**---Ini adalah bagian akhir laporan---**
+##  Hyperparameter Tuning
 
-_Catatan:_
-- Dataset bersifat sintetis, dapat diperluas dengan data nyata dari institusi pertanian untuk generalisasi lebih baik.
-- Model dapat dikembangkan lebih lanjut untuk deployment di aplikasi mobile berbasis deteksi penyakit tanaman.
+###  Random Forest
+**Best Params:**
+{
+  'n_estimators': 50,
+  'max_depth': 10,
+  'min_samples_split': 5,
+  'min_samples_leaf': 1
+}
+
+###  Hasil Evaluasi Model
+
+**Best RMSE (CV)**: `1176.97`  
+**Test RMSE (tuned)**: `1197.89`  
+**Test R²**: `-0.019`
+
+---
+
+###  Evaluasi Model
+
+| Model         | RMSE (Test) | R² Score |
+|---------------|-------------|----------|
+| Random Forest | 1224.72     | -0.065   |
+| XGBoost       | 1197.89     | -0.019   |
+
+---
+
+###  Kesimpulan
+
+Meskipun **XGBoost** memiliki RMSE yang sedikit lebih rendah dibandingkan **Random Forest**, **kedua model masih menunjukkan nilai R² negatif**.  
+Hal ini mengindikasikan bahwa model belum cukup menjelaskan variabilitas hasil panen yang sebenarnya.
+
+➡ **Diperlukan perbaikan lebih lanjut** baik dari segi data maupun pemilihan/penyesuaian model.
+
+---
+
+### Penutup
+
+Model **Random Forest** dan **XGBoost** berhasil dibangun dan diuji.  
+Namun, hasil saat ini **belum optimal**.
+
+Beberapa strategi lanjutan yang dapat diterapkan:
+
+- Menggunakan **dataset yang lebih besar dan lebih representatif**
+- Melakukan **feature engineering lanjutan**
+- Mengeksplorasi **model alternatif seperti LightGBM atau ensemble stacking**
 
